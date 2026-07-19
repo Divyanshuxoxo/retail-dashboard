@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Pulse — Sales Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B1420;
+    --panel: #101D2E;
+    --panel-2: #0D1826;
+    --line: #1D2E45;
+    --text: #E7EDF6;
+    --muted: #7C8CA6;
+    --teal: #2DD4BF;
+    --amber: #F0A840;
+    --coral: #F0705C;
+    --violet: #8B7CF6;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(45,212,191,0.07), transparent),
+      radial-gradient(1000px 500px at 100% 0%, rgba(139,124,246,0.06), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+    padding: 28px clamp(16px, 4vw, 48px) 60px;
+  }
+  .grain{ position:fixed; inset:0; pointer-events:none; opacity:0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 999;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    flex-wrap: wrap; gap: 16px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px; margin-bottom: 24px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:9px;
+    background: linear-gradient(135deg, var(--teal), var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--display); font-weight:700; color:#0B1420; font-size:16px;
+  }
+  .brand h1{ font-family: var(--display); font-size: 20px; font-weight:700; letter-spacing:0.2px;}
+  .brand .sub{ font-size:12px; color:var(--muted); font-family: var(--mono); letter-spacing:0.5px; margin-top:2px;}
+  .live{
+    display:flex; align-items:center; gap:8px; font-family: var(--mono); font-size:12px; color: var(--teal);
+    border:1px solid rgba(45,212,191,0.3); padding:6px 12px; border-radius:20px; background: rgba(45,212,191,0.06);
+  }
+  .live .dot{ width:7px; height:7px; border-radius:50%; background: var(--teal); box-shadow:0 0 8px var(--teal); animation: pulse 1.8s infinite;}
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{
+    font-family: var(--mono); font-size:11px; color: var(--muted);
+    border:1px solid var(--line); padding:6px 12px; border-radius:6px; background: var(--panel-2);
+    cursor:pointer; transition: all .15s ease;
+  }
+  .chip.active{ color: var(--bg); background: var(--teal); border-color: var(--teal); font-weight:600;}
+  .chip:hover:not(.active){ border-color: var(--teal); color: var(--teal); }
+
+  /* ---------- KPI strip ---------- */
+  .kpis{
+    display:grid; grid-template-columns: repeat(5, 1fr); gap:14px; margin-bottom: 22px;
+  }
+  @media (max-width: 980px){ .kpis{ grid-template-columns: repeat(2, 1fr);} }
+  .kpi{
+    background: var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 18px 16px;
+    position:relative; overflow:hidden;
+  }
+  .kpi::before{ content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--accent, var(--teal)); }
+  .kpi .label{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); }
+  .kpi .value{ font-family: var(--display); font-size: 26px; font-weight:700; margin-top:8px; letter-spacing:-0.3px;}
+  .kpi .delta{ font-family: var(--mono); font-size:11.5px; margin-top:6px; display:flex; align-items:center; gap:4px;}
+  .delta.up{ color: var(--teal); }
+  .delta.down{ color: var(--coral); }
+
+  /* ---------- Grid ---------- */
+  .grid{ display:grid; grid-template-columns: 2fr 1fr; gap:16px; margin-bottom:16px; }
+  .grid.thirds{ grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 980px){ .grid, .grid.thirds{ grid-template-columns: 1fr; } }
+
+  .panel{
+    background: var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px;
+  }
+  .panel h3{
+    font-family: var(--display); font-size:14px; font-weight:600; margin-bottom:2px;
+  }
+  .panel .desc{ font-size:11.5px; color:var(--muted); margin-bottom:14px; }
+  canvas{ max-height: 260px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead th{
+    text-align:left; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px;
+    color:var(--muted); border-bottom:1px solid var(--line); padding:8px 6px; font-weight:500;
+  }
+  tbody td{ padding:8px 6px; border-bottom:1px solid rgba(29,46,69,0.5); font-family: var(--mono); }
+  tbody td:first-child{ font-family: var(--body); }
+  tbody tr:hover{ background: rgba(45,212,191,0.04); }
+  .bar-cell{ display:flex; align-items:center; gap:8px; }
+  .bar-track{ flex:1; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden; }
+  .bar-fill{ height:100%; background: linear-gradient(90deg, var(--teal), var(--violet)); border-radius:3px; }
+
+  footer{ margin-top: 30px; text-align:center; font-family: var(--mono); font-size:11px; color: var(--muted); }
+  footer a{ color: var(--teal); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">RP</div>
+    <div>
+      <h1>Retail Pulse</h1>
+      <div class="sub">SALES INTELLIGENCE · FY2023–FY2024</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+    <div class="filters" id="yearFilter">
+      <div class="chip active" data-year="all">All Years</div>
+      <div class="chip" data-year="2023">2023</div>
+      <div class="chip" data-year="2024">2024</div>
+    </div>
+    <div class="live"><span class="dot"></span> DATASET SNAPSHOT</div>
+  </div>
+</header>
+
+<section class="kpis">
+  <div class="kpi" style="--accent:var(--teal)">
+    <div class="label">Total Revenue</div>
+    <div class="value" id="kpiRevenue">₹0</div>
+    <div class="delta up" id="yoyContainer">↑ <span id="kpiYoy">0%</span> YoY</div>
+  </div>
+  <div class="kpi" style="--accent:var(--violet)">
+    <div class="label">Total Profit</div>
+    <div class="value" id="kpiProfit">₹0</div>
+    <div class="delta up">Margin <span id="kpiMargin">0%</span></div>
+  </div>
+  <div class="kpi" style="--accent:var(--amber)">
+    <div class="label">Total Orders</div>
+    <div class="value" id="kpiOrders">0</div>
+    <div class="delta" style="color:var(--muted)">15,000 transactions</div>
+  </div>
+  <div class="kpi" style="--accent:var(--coral)">
+    <div class="label">Avg Order Value</div>
+    <div class="value" id="kpiAov">₹0</div>
+    <div class="delta" style="color:var(--muted)">per order</div>
+  </div>
+  <div class="kpi" style="--accent:var(--teal)">
+    <div class="label">Top Category</div>
+    <div class="value" style="font-size:20px;">Sports</div>
+    <div class="delta" style="color:var(--muted)">₹14.6L revenue</div>
+  </div>
+</section>
+
+<section class="grid">
+  <div class="panel">
+    <h3>Revenue Trend</h3>
+    <div class="desc">Monthly revenue, 2023 vs 2024 — seasonal peak in Nov–Dec</div>
+    <canvas id="trendChart"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Revenue by Category</h3>
+    <div class="desc">Share of total revenue</div>
+    <canvas id="categoryChart"></canvas>
+  </div>
+</section>
+
+<section class="grid thirds">
+  <div class="panel">
+    <h3>Revenue by Region</h3>
+    <div class="desc">Store performance by zone</div>
+    <canvas id="regionChart"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Customer Segments</h3>
+    <div class="desc">Revenue contribution</div>
+    <canvas id="segmentChart"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Margin vs Volume</h3>
+    <div class="desc">Each dot = one product</div>
+    <canvas id="scatterChart"></canvas>
+  </div>
+</section>
+
+<section class="grid" style="grid-template-columns: 1.3fr 1fr;">
+  <div class="panel">
+    <h3>Top Products by Revenue</h3>
+    <div class="desc">Best performers across all categories</div>
+    <canvas id="topProductsChart"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Store Performance</h3>
+    <div class="desc">Top cities by revenue</div>
+    <table>
+      <thead><tr><th>City</th><th>Revenue</th><th>AOV</th></tr></thead>
+      <tbody id="cityTableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Synthetic dataset · 15,000 transactions · Jan 2023 – Dec 2024 &nbsp;·&nbsp;
+  Built as a web-based alternative to Power BI Desktop &nbsp;·&nbsp;
+  <a href="data/Sales.csv">Raw data</a>
+</footer>
+
+<script>
+const RAW = {"months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], "revenue2023": [219945.0, 123019.0, 217935.0, 198224.0, 195131.0, 210472.0, 201049.0, 200741.0, 195825.0, 204871.0, 278554.0, 297187.0], "revenue2024": [212285.0, 135639.0, 217026.0, 214395.0, 200764.0, 207309.0, 233961.0, 217766.0, 216111.0, 212281.0, 326042.0, 324194.0], "byYear": {"all": {"kpi": {"totalRevenue": 5260726.0, "totalProfit": 2061660.0, "margin": 39.2, "totalOrders": 15000, "aov": 351.0, "topCategory": "Sports", "topCategoryRevenue": 1461165.0, "yoy": 6.9}, "categories": {"labels": ["Sports", "Home & Kitchen", "Apparel", "Electronics", "Beauty"], "values": [1461165.0, 1192024.0, 988048.0, 895550.0, 723939.0]}, "regions": {"labels": ["East", "Central", "South", "West", "North"], "values": [1097743.0, 1093967.0, 1044086.0, 1019727.0, 1005203.0]}, "topProducts": {"labels": ["Dumbbell Set", "Resistance Bands", "Storage Bins", "Smart Watch", "Cricket Bat", "Men's T-Shirt", "Shampoo Set", "Power Bank"], "values": [457388.0, 455048.0, 454776.0, 318260.0, 301893.0, 300972.0, 273669.0, 262570.0]}, "segments": {"labels": ["Consumer", "Small Business", "Corporate", "Online"], "values": [2486870.0, 1106311.0, 889374.0, 778171.0]}, "scatter": [{"ProductName": "Air Fryer", "Qty": 1565, "Margin": 46.0, "Revenue": 207979.0}, {"ProductName": "Baseball Cap", "Qty": 1649, "Margin": 25.0, "Revenue": 205337.0}, {"ProductName": "Blender", "Qty": 1601, "Margin": 50.0, "Revenue": 46192.0}, {"ProductName": "Bluetooth Speaker", "Qty": 1472, "Margin": 26.0, "Revenue": 54968.0}, {"ProductName": "Coffee Maker", "Qty": 1623, "Margin": 39.0, "Revenue": 90293.0}, {"ProductName": "Cricket Bat", "Qty": 1673, "Margin": 49.0, "Revenue": 301893.0}, {"ProductName": "Cycling Helmet", "Qty": 1552, "Margin": 32.0, "Revenue": 26472.0}, {"ProductName": "Dumbbell Set", "Qty": 1692, "Margin": 46.0, "Revenue": 457388.0}, {"ProductName": "Face Serum", "Qty": 1679, "Margin": 22.0, "Revenue": 106253.0}, {"ProductName": "Football", "Qty": 1581, "Margin": 27.0, "Revenue": 38750.0}, {"ProductName": "Hair Dryer", "Qty": 1625, "Margin": 43.0, "Revenue": 121863.0}, {"ProductName": "Hoodie", "Qty": 1550, "Margin": 34.0, "Revenue": 110991.0}, {"ProductName": "LED Desk Lamp", "Qty": 1594, "Margin": 26.0, "Revenue": 200469.0}, {"ProductName": "Laptop Stand", "Qty": 1754, "Margin": 48.0, "Revenue": 45278.0}, {"ProductName": "Lip Balm Kit", "Qty": 1612, "Margin": 38.0, "Revenue": 59444.0}, {"ProductName": "Makeup Brush Set", "Qty": 1605, "Margin": 39.0, "Revenue": 132748.0}, {"ProductName": "Men's T-Shirt", "Qty": 1727, "Margin": 28.0, "Revenue": 300972.0}, {"ProductName": "Non-Stick Pan Set", "Qty": 1698, "Margin": 20.0, "Revenue": 192316.0}, {"ProductName": "Power Bank", "Qty": 1586, "Margin": 44.0, "Revenue": 262570.0}, {"ProductName": "Resistance Bands", "Qty": 1646, "Margin": 49.0, "Revenue": 455048.0}, {"ProductName": "Running Shoes", "Qty": 1709, "Margin": 39.0, "Revenue": 138157.0}, {"ProductName": "Shampoo Set", "Qty": 1670, "Margin": 36.0, "Revenue": 273669.0}, {"ProductName": "Smart Watch", "Qty": 1673, "Margin": 42.0, "Revenue": 318260.0}, {"ProductName": "Storage Bins", "Qty": 1662, "Margin": 47.0, "Revenue": 454776.0}, {"ProductName": "Sunscreen SPF50", "Qty": 1530, "Margin": 49.0, "Revenue": 29962.0}, {"ProductName": "USB-C Hub", "Qty": 1685, "Margin": 50.0, "Revenue": 27142.0}, {"ProductName": "Winter Jacket", "Qty": 1715, "Margin": 31.0, "Revenue": 168063.0}, {"ProductName": "Wireless Earbuds", "Qty": 1567, "Margin": 50.0, "Revenue": 187332.0}, {"ProductName": "Women's Jeans", "Qty": 1512, "Margin": 26.0, "Revenue": 64528.0}, {"ProductName": "Yoga Mat", "Qty": 1593, "Margin": 26.0, "Revenue": 181613.0}], "cityTable": [{"City": "Patna", "Revenue": 381176.0, "Orders": 1033, "AOV": 369.0}, {"City": "Indore", "Revenue": 380056.0, "Orders": 1005, "AOV": 378.0}, {"City": "Nagpur", "Revenue": 370443.0, "Orders": 1066, "AOV": 348.0}, {"City": "Kolkata", "Revenue": 366606.0, "Orders": 1001, "AOV": 366.0}, {"City": "Bengaluru", "Revenue": 365893.0, "Orders": 1002, "AOV": 365.0}, {"City": "Hyderabad", "Revenue": 353837.0, "Orders": 1020, "AOV": 347.0}, {"City": "Pune", "Revenue": 351818.0, "Orders": 1011, "AOV": 348.0}, {"City": "Lucknow", "Revenue": 351570.0, "Orders": 1022, "AOV": 344.0}, {"City": "Bhubaneswar", "Revenue": 349962.0, "Orders": 995, "AOV": 352.0}, {"City": "Ahmedabad", "Revenue": 349724.0, "Orders": 997, "AOV": 351.0}, {"City": "Bhopal", "Revenue": 343469.0, "Orders": 1008, "AOV": 341.0}, {"City": "Chandigarh", "Revenue": 340711.0, "Orders": 973, "AOV": 350.0}, {"City": "Chennai", "Revenue": 324355.0, "Orders": 925, "AOV": 351.0}, {"City": "Mumbai", "Revenue": 318184.0, "Orders": 967, "AOV": 329.0}, {"City": "Delhi", "Revenue": 312922.0, "Orders": 975, "AOV": 321.0}]}, "2023": {"kpi": {"totalRevenue": 2542953.0, "totalProfit": 993848.0, "margin": 39.1, "totalOrders": 7424, "aov": 343.0, "topCategory": "Sports", "topCategoryRevenue": 679691.0, "yoy": null}, "categories": {"labels": ["Sports", "Home & Kitchen", "Apparel", "Electronics", "Beauty"], "values": [679691.0, 591149.0, 474402.0, 436844.0, 360868.0]}, "regions": {"labels": ["Central", "South", "East", "North", "West"], "values": [552358.0, 516143.0, 510646.0, 484745.0, 479061.0]}, "topProducts": {"labels": ["Storage Bins", "Dumbbell Set", "Resistance Bands", "Smart Watch", "Cricket Bat", "Shampoo Set", "Power Bank", "Men's T-Shirt"], "values": [220214.0, 216610.0, 207402.0, 141765.0, 139928.0, 131262.0, 128692.0, 127440.0]}, "segments": {"labels": ["Consumer", "Small Business", "Corporate", "Online"], "values": [1208561.0, 525688.0, 432692.0, 376012.0]}, "scatter": [{"ProductName": "Air Fryer", "Qty": 828, "Margin": 46.0, "Revenue": 109410.0}, {"ProductName": "Baseball Cap", "Qty": 875, "Margin": 24.0, "Revenue": 108637.0}, {"ProductName": "Blender", "Qty": 702, "Margin": 50.0, "Revenue": 20230.0}, {"ProductName": "Bluetooth Speaker", "Qty": 807, "Margin": 26.0, "Revenue": 30051.0}, {"ProductName": "Coffee Maker", "Qty": 799, "Margin": 39.0, "Revenue": 44262.0}, {"ProductName": "Cricket Bat", "Qty": 770, "Margin": 50.0, "Revenue": 139928.0}, {"ProductName": "Cycling Helmet", "Qty": 766, "Margin": 33.0, "Revenue": 13131.0}, {"ProductName": "Dumbbell Set", "Qty": 805, "Margin": 46.0, "Revenue": 216610.0}, {"ProductName": "Face Serum", "Qty": 834, "Margin": 23.0, "Revenue": 52968.0}, {"ProductName": "Football", "Qty": 828, "Margin": 27.0, "Revenue": 20223.0}, {"ProductName": "Hair Dryer", "Qty": 875, "Margin": 43.0, "Revenue": 65786.0}, {"ProductName": "Hoodie", "Qty": 805, "Margin": 34.0, "Revenue": 57387.0}, {"ProductName": "LED Desk Lamp", "Qty": 793, "Margin": 27.0, "Revenue": 100671.0}, {"ProductName": "Laptop Stand", "Qty": 876, "Margin": 48.0, "Revenue": 22775.0}, {"ProductName": "Lip Balm Kit", "Qty": 785, "Margin": 38.0, "Revenue": 28937.0}, {"ProductName": "Makeup Brush Set", "Qty": 819, "Margin": 39.0, "Revenue": 67667.0}, {"ProductName": "Men's T-Shirt", "Qty": 737, "Margin": 27.0, "Revenue": 127440.0}, {"ProductName": "Non-Stick Pan Set", "Qty": 854, "Margin": 19.0, "Revenue": 96362.0}, {"ProductName": "Power Bank", "Qty": 779, "Margin": 44.0, "Revenue": 128692.0}, {"ProductName": "Resistance Bands", "Qty": 747, "Margin": 49.0, "Revenue": 207402.0}, {"ProductName": "Running Shoes", "Qty": 798, "Margin": 39.0, "Revenue": 64595.0}, {"ProductName": "Shampoo Set", "Qty": 802, "Margin": 36.0, "Revenue": 131262.0}, {"ProductName": "Smart Watch", "Qty": 747, "Margin": 41.0, "Revenue": 141765.0}, {"ProductName": "Storage Bins", "Qty": 804, "Margin": 47.0, "Revenue": 220214.0}, {"ProductName": "Sunscreen SPF50", "Qty": 722, "Margin": 49.0, "Revenue": 14248.0}, {"ProductName": "USB-C Hub", "Qty": 823, "Margin": 51.0, "Revenue": 13295.0}, {"ProductName": "Winter Jacket", "Qty": 845, "Margin": 31.0, "Revenue": 82946.0}, {"ProductName": "Wireless Earbuds", "Qty": 837, "Margin": 50.0, "Revenue": 100266.0}, {"ProductName": "Women's Jeans", "Qty": 779, "Margin": 27.0, "Revenue": 33397.0}, {"ProductName": "Yoga Mat", "Qty": 729, "Margin": 25.0, "Revenue": 82397.0}], "cityTable": [{"City": "Indore", "Revenue": 191696.0, "Orders": 496, "AOV": 386.0}, {"City": "Nagpur", "Revenue": 187632.0, "Orders": 544, "AOV": 345.0}, {"City": "Bengaluru", "Revenue": 184606.0, "Orders": 507, "AOV": 364.0}, {"City": "Kolkata", "Revenue": 181980.0, "Orders": 498, "AOV": 365.0}, {"City": "Patna", "Revenue": 180549.0, "Orders": 494, "AOV": 365.0}, {"City": "Bhopal", "Revenue": 173030.0, "Orders": 510, "AOV": 339.0}, {"City": "Pune", "Revenue": 169247.0, "Orders": 500, "AOV": 338.0}, {"City": "Lucknow", "Revenue": 169239.0, "Orders": 487, "AOV": 348.0}, {"City": "Chennai", "Revenue": 167501.0, "Orders": 473, "AOV": 354.0}, {"City": "Ahmedabad", "Revenue": 166032.0, "Orders": 496, "AOV": 335.0}, {"City": "Hyderabad", "Revenue": 164036.0, "Orders": 501, "AOV": 327.0}, {"City": "Chandigarh", "Revenue": 161260.0, "Orders": 487, "AOV": 331.0}, {"City": "Delhi", "Revenue": 154246.0, "Orders": 506, "AOV": 305.0}, {"City": "Bhubaneswar", "Revenue": 148116.0, "Orders": 482, "AOV": 307.0}, {"City": "Mumbai", "Revenue": 143782.0, "Orders": 443, "AOV": 325.0}]}, "2024": {"kpi": {"totalRevenue": 2717772.0, "totalProfit": 1067812.0, "margin": 39.3, "totalOrders": 7576, "aov": 359.0, "topCategory": "Sports", "topCategoryRevenue": 781474.0, "yoy": 6.9}, "categories": {"labels": ["Sports", "Home & Kitchen", "Apparel", "Electronics", "Beauty"], "values": [781474.0, 600876.0, 513646.0, 458706.0, 363071.0]}, "regions": {"labels": ["East", "Central", "West", "South", "North"], "values": [587098.0, 541609.0, 540665.0, 527943.0, 520458.0]}, "topProducts": {"labels": ["Resistance Bands", "Dumbbell Set", "Storage Bins", "Smart Watch", "Men's T-Shirt", "Cricket Bat", "Shampoo Set", "Power Bank"], "values": [247646.0, 240778.0, 234563.0, 176495.0, 173532.0, 161965.0, 142407.0, 133878.0]}, "segments": {"labels": ["Consumer", "Small Business", "Corporate", "Online"], "values": [1278309.0, 580622.0, 456682.0, 402159.0]}, "scatter": [{"ProductName": "Air Fryer", "Qty": 737, "Margin": 47.0, "Revenue": 98569.0}, {"ProductName": "Baseball Cap", "Qty": 774, "Margin": 25.0, "Revenue": 96700.0}, {"ProductName": "Blender", "Qty": 899, "Margin": 50.0, "Revenue": 25962.0}, {"ProductName": "Bluetooth Speaker", "Qty": 665, "Margin": 26.0, "Revenue": 24916.0}, {"ProductName": "Coffee Maker", "Qty": 824, "Margin": 39.0, "Revenue": 46031.0}, {"ProductName": "Cricket Bat", "Qty": 903, "Margin": 49.0, "Revenue": 161965.0}, {"ProductName": "Cycling Helmet", "Qty": 786, "Margin": 32.0, "Revenue": 13341.0}, {"ProductName": "Dumbbell Set", "Qty": 887, "Margin": 46.0, "Revenue": 240778.0}, {"ProductName": "Face Serum", "Qty": 845, "Margin": 22.0, "Revenue": 53285.0}, {"ProductName": "Football", "Qty": 753, "Margin": 28.0, "Revenue": 18527.0}, {"ProductName": "Hair Dryer", "Qty": 750, "Margin": 43.0, "Revenue": 56077.0}, {"ProductName": "Hoodie", "Qty": 745, "Margin": 34.0, "Revenue": 53604.0}, {"ProductName": "LED Desk Lamp", "Qty": 801, "Margin": 25.0, "Revenue": 99798.0}, {"ProductName": "Laptop Stand", "Qty": 878, "Margin": 48.0, "Revenue": 22504.0}, {"ProductName": "Lip Balm Kit", "Qty": 827, "Margin": 38.0, "Revenue": 30507.0}, {"ProductName": "Makeup Brush Set", "Qty": 786, "Margin": 39.0, "Revenue": 65080.0}, {"ProductName": "Men's T-Shirt", "Qty": 990, "Margin": 28.0, "Revenue": 173532.0}, {"ProductName": "Non-Stick Pan Set", "Qty": 844, "Margin": 20.0, "Revenue": 95954.0}, {"ProductName": "Power Bank", "Qty": 807, "Margin": 44.0, "Revenue": 133878.0}, {"ProductName": "Resistance Bands", "Qty": 899, "Margin": 49.0, "Revenue": 247646.0}, {"ProductName": "Running Shoes", "Qty": 911, "Margin": 39.0, "Revenue": 73562.0}, {"ProductName": "Shampoo Set", "Qty": 868, "Margin": 36.0, "Revenue": 142407.0}, {"ProductName": "Smart Watch", "Qty": 926, "Margin": 42.0, "Revenue": 176495.0}, {"ProductName": "Storage Bins", "Qty": 858, "Margin": 47.0, "Revenue": 234563.0}, {"ProductName": "Sunscreen SPF50", "Qty": 808, "Margin": 49.0, "Revenue": 15714.0}, {"ProductName": "USB-C Hub", "Qty": 862, "Margin": 50.0, "Revenue": 13846.0}, {"ProductName": "Winter Jacket", "Qty": 870, "Margin": 31.0, "Revenue": 85117.0}, {"ProductName": "Wireless Earbuds", "Qty": 730, "Margin": 50.0, "Revenue": 87066.0}, {"ProductName": "Women's Jeans", "Qty": 733, "Margin": 26.0, "Revenue": 31131.0}, {"ProductName": "Yoga Mat", "Qty": 864, "Margin": 27.0, "Revenue": 99216.0}], "cityTable": [{"City": "Bhubaneswar", "Revenue": 201845.0, "Orders": 513, "AOV": 393.0}, {"City": "Patna", "Revenue": 200627.0, "Orders": 539, "AOV": 372.0}, {"City": "Hyderabad", "Revenue": 189801.0, "Orders": 519, "AOV": 366.0}, {"City": "Indore", "Revenue": 188360.0, "Orders": 509, "AOV": 370.0}, {"City": "Kolkata", "Revenue": 184626.0, "Orders": 503, "AOV": 367.0}, {"City": "Ahmedabad", "Revenue": 183692.0, "Orders": 501, "AOV": 367.0}, {"City": "Nagpur", "Revenue": 182811.0, "Orders": 522, "AOV": 350.0}, {"City": "Pune", "Revenue": 182571.0, "Orders": 511, "AOV": 357.0}, {"City": "Lucknow", "Revenue": 182332.0, "Orders": 535, "AOV": 341.0}, {"City": "Bengaluru", "Revenue": 181287.0, "Orders": 495, "AOV": 366.0}, {"City": "Chandigarh", "Revenue": 179450.0, "Orders": 486, "AOV": 369.0}, {"City": "Mumbai", "Revenue": 174402.0, "Orders": 524, "AOV": 333.0}, {"City": "Bhopal", "Revenue": 170438.0, "Orders": 498, "AOV": 342.0}, {"City": "Delhi", "Revenue": 158676.0, "Orders": 469, "AOV": 338.0}, {"City": "Chennai", "Revenue": 156854.0, "Orders": 452, "AOV": 347.0}]}}};
+
+const fmtINR = (n) => {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + 'Cr';
+  if (n >= 100000) return '₹' + (n/100000).toFixed(1) + 'L';
+  if (n >= 1000) return '₹' + (n/1000).toFixed(0) + 'K';
+  return '₹' + n.toFixed(0);
+};
+
+Chart.defaults.color = '#7C8CA6';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.borderColor = '#1D2E45';
+
+const gridColor = '#1D2E45';
+let currentYear = 'all';
+const charts = {};
+
+function countUp(el, target, isCurrency, suffix) {
+  const startVal = parseFloat(el.dataset.raw || '0');
+  const duration = 700; const startTime = performance.now();
+  function step(now){
+    const p = Math.min((now-startTime)/duration, 1);
+    const eased = 1 - Math.pow(1-p, 3);
+    const val = startVal + (target-startVal)*eased;
+    el.textContent = (isCurrency ? fmtINR(val) : Math.round(val).toLocaleString('en-IN')) + (suffix||'');
+    if(p<1) requestAnimationFrame(step);
+    else el.dataset.raw = target;
+  }
+  requestAnimationFrame(step);
+}
+
+function buildCharts(d) {
+  charts.trend = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: RAW.months,
+      datasets: [
+        { label: '2023', data: RAW.revenue2023, borderColor: '#8B7CF6', backgroundColor: 'rgba(139,124,246,0.08)', tension:0.35, fill:true, pointRadius:2 },
+        { label: '2024', data: RAW.revenue2024, borderColor: '#2DD4BF', backgroundColor: 'rgba(45,212,191,0.1)', tension:0.35, fill:true, pointRadius:2 },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', align:'end', labels:{boxWidth:10, usePointStyle:true} } },
+      scales:{ y:{ grid:{color:gridColor}, ticks:{ callback: v => fmtINR(v) } }, x:{ grid:{display:false} } }
+    }
+  });
+
+  charts.category = new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: { labels: d.categories.labels, datasets: [{ data: d.categories.values, backgroundColor: ['#2DD4BF','#8B7CF6','#F0A840','#F0705C','#4C7EF3'], borderColor:'#101D2E', borderWidth:2 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ position:'right', labels:{boxWidth:10, font:{size:10.5}} } } }
+  });
+
+  charts.region = new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: { labels: d.regions.labels, datasets:[{ data: d.regions.values, backgroundColor:'#2DD4BF', borderRadius:5, maxBarThickness:28 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ y:{ grid:{color:gridColor}, ticks:{callback: v=>fmtINR(v)} }, x:{ grid:{display:false} } } }
+  });
+
+  charts.segment = new Chart(document.getElementById('segmentChart'), {
+    type: 'bar',
+    data: { labels: d.segments.labels, datasets:[{ data: d.segments.values, backgroundColor:'#8B7CF6', borderRadius:5, maxBarThickness:20 }] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{ grid:{color:gridColor}, ticks:{callback: v=>fmtINR(v)} }, y:{ grid:{display:false} } } }
+  });
+
+  charts.scatter = new Chart(document.getElementById('scatterChart'), {
+    type: 'scatter',
+    data: { datasets:[{ data: d.scatter.map(p => ({x:p.Qty, y:p.Margin, r:Math.max(4, p.Revenue/15000)})), backgroundColor: 'rgba(240,168,64,0.55)', borderColor:'#F0A840' }] },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: (ctx) => {
+        const p = d.scatter[ctx.dataIndex];
+        return p.ProductName + ': ' + p.Margin + '% margin, ' + p.Qty + ' units';
+      }}}},
+      scales:{
+        x:{ title:{display:true, text:'Units Sold', color:'#7C8CA6', font:{size:10.5}}, grid:{color:gridColor} },
+        y:{ title:{display:true, text:'Margin %', color:'#7C8CA6', font:{size:10.5}}, grid:{color:gridColor} }
+      }
+    }
+  });
+
+  charts.topProducts = new Chart(document.getElementById('topProductsChart'), {
+    type: 'bar',
+    data: { labels: d.topProducts.labels, datasets:[{ data: d.topProducts.values, backgroundColor:'#F0705C', borderRadius:5, maxBarThickness:18 }] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{ grid:{color:gridColor}, ticks:{callback: v=>fmtINR(v)} }, y:{ grid:{display:false} } } }
+  });
+}
+
+function updateCharts(d) {
+  charts.category.data.labels = d.categories.labels;
+  charts.category.data.datasets[0].data = d.categories.values;
+  charts.category.update();
+
+  charts.region.data.labels = d.regions.labels;
+  charts.region.data.datasets[0].data = d.regions.values;
+  charts.region.update();
+
+  charts.segment.data.labels = d.segments.labels;
+  charts.segment.data.datasets[0].data = d.segments.values;
+  charts.segment.update();
+
+  charts.scatter.data.datasets[0].data = d.scatter.map(p => ({x:p.Qty, y:p.Margin, r:Math.max(4, p.Revenue/15000)}));
+  charts.scatter.data.datasets[0]._points = d.scatter;
+  charts.scatter.update();
+
+  charts.topProducts.data.labels = d.topProducts.labels;
+  charts.topProducts.data.datasets[0].data = d.topProducts.values;
+  charts.topProducts.update();
+}
+
+function renderCityTable(d) {
+  const maxCityRev = Math.max(...d.cityTable.map(c => c.Revenue));
+  const tbody = document.getElementById('cityTableBody');
+  tbody.innerHTML = '';
+  d.cityTable.slice(0, 10).forEach(c => {
+    const pct = (c.Revenue / maxCityRev) * 100;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${c.City}</td>
+      <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>${fmtINR(c.Revenue)}</div></td>
+      <td>₹${c.AOV}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderKpis(d) {
+  countUp(document.getElementById('kpiRevenue'), d.kpi.totalRevenue, true);
+  countUp(document.getElementById('kpiProfit'), d.kpi.totalProfit, true);
+  countUp(document.getElementById('kpiOrders'), d.kpi.totalOrders, false);
+  countUp(document.getElementById('kpiAov'), d.kpi.aov, true);
+  document.getElementById('kpiMargin').textContent = d.kpi.margin + '%';
+  const yoyEl = document.getElementById('yoyContainer');
+  if (d.kpi.yoy === null) { yoyEl.innerHTML = '<span style="color:var(--muted)">First year on record</span>'; }
+  else { yoyEl.innerHTML = '↑ <span id="kpiYoy">' + d.kpi.yoy + '%</span> YoY'; }
+  document.querySelector('.kpi:last-child .value').textContent = d.kpi.topCategory;
+  document.querySelector('.kpi:last-child .delta').textContent = fmtINR(d.kpi.topCategoryRevenue) + ' revenue';
+  document.getElementById('kpiOrders').nextElementSibling.textContent = d.kpi.totalOrders.toLocaleString('en-IN') + ' transactions';
+}
+
+function setYear(year) {
+  currentYear = year;
+  const d = RAW.byYear[year];
+  document.querySelectorAll('#yearFilter .chip').forEach(c => c.classList.toggle('active', c.dataset.year === year));
+  renderKpis(d);
+  updateCharts(d);
+  renderCityTable(d);
+}
+
+document.querySelectorAll('#yearFilter .chip').forEach(chip => {
+  chip.addEventListener('click', () => setYear(chip.dataset.year));
+});
+
+buildCharts(RAW.byYear.all);
+setYear('all');
+</script>
+</body>
+</html>
