@@ -1,0 +1,401 @@
+CustomerID,Segment
+C0001,Consumer
+C0002,Consumer
+C0003,Corporate
+C0004,Consumer
+C0005,Consumer
+C0006,Small Business
+C0007,Consumer
+C0008,Corporate
+C0009,Consumer
+C0010,Online
+C0011,Corporate
+C0012,Consumer
+C0013,Consumer
+C0014,Corporate
+C0015,Corporate
+C0016,Corporate
+C0017,Corporate
+C0018,Consumer
+C0019,Consumer
+C0020,Consumer
+C0021,Online
+C0022,Small Business
+C0023,Consumer
+C0024,Consumer
+C0025,Consumer
+C0026,Consumer
+C0027,Corporate
+C0028,Small Business
+C0029,Online
+C0030,Consumer
+C0031,Consumer
+C0032,Corporate
+C0033,Corporate
+C0034,Small Business
+C0035,Corporate
+C0036,Consumer
+C0037,Small Business
+C0038,Consumer
+C0039,Consumer
+C0040,Consumer
+C0041,Consumer
+C0042,Small Business
+C0043,Consumer
+C0044,Small Business
+C0045,Online
+C0046,Consumer
+C0047,Consumer
+C0048,Corporate
+C0049,Consumer
+C0050,Consumer
+C0051,Consumer
+C0052,Consumer
+C0053,Online
+C0054,Corporate
+C0055,Small Business
+C0056,Online
+C0057,Corporate
+C0058,Consumer
+C0059,Online
+C0060,Small Business
+C0061,Corporate
+C0062,Online
+C0063,Consumer
+C0064,Consumer
+C0065,Consumer
+C0066,Consumer
+C0067,Corporate
+C0068,Online
+C0069,Consumer
+C0070,Small Business
+C0071,Consumer
+C0072,Consumer
+C0073,Consumer
+C0074,Consumer
+C0075,Online
+C0076,Consumer
+C0077,Small Business
+C0078,Corporate
+C0079,Consumer
+C0080,Online
+C0081,Online
+C0082,Consumer
+C0083,Consumer
+C0084,Consumer
+C0085,Consumer
+C0086,Consumer
+C0087,Small Business
+C0088,Small Business
+C0089,Consumer
+C0090,Consumer
+C0091,Online
+C0092,Consumer
+C0093,Consumer
+C0094,Consumer
+C0095,Online
+C0096,Consumer
+C0097,Small Business
+C0098,Corporate
+C0099,Consumer
+C0100,Corporate
+C0101,Consumer
+C0102,Small Business
+C0103,Small Business
+C0104,Small Business
+C0105,Consumer
+C0106,Corporate
+C0107,Consumer
+C0108,Consumer
+C0109,Consumer
+C0110,Small Business
+C0111,Small Business
+C0112,Consumer
+C0113,Small Business
+C0114,Consumer
+C0115,Small Business
+C0116,Consumer
+C0117,Small Business
+C0118,Consumer
+C0119,Online
+C0120,Consumer
+C0121,Consumer
+C0122,Consumer
+C0123,Online
+C0124,Online
+C0125,Consumer
+C0126,Small Business
+C0127,Corporate
+C0128,Small Business
+C0129,Small Business
+C0130,Consumer
+C0131,Consumer
+C0132,Online
+C0133,Online
+C0134,Small Business
+C0135,Consumer
+C0136,Consumer
+C0137,Corporate
+C0138,Online
+C0139,Online
+C0140,Corporate
+C0141,Small Business
+C0142,Consumer
+C0143,Consumer
+C0144,Online
+C0145,Small Business
+C0146,Consumer
+C0147,Consumer
+C0148,Small Business
+C0149,Consumer
+C0150,Consumer
+C0151,Small Business
+C0152,Small Business
+C0153,Small Business
+C0154,Consumer
+C0155,Corporate
+C0156,Consumer
+C0157,Consumer
+C0158,Corporate
+C0159,Small Business
+C0160,Corporate
+C0161,Small Business
+C0162,Small Business
+C0163,Consumer
+C0164,Consumer
+C0165,Consumer
+C0166,Consumer
+C0167,Online
+C0168,Consumer
+C0169,Online
+C0170,Small Business
+C0171,Corporate
+C0172,Small Business
+C0173,Small Business
+C0174,Consumer
+C0175,Consumer
+C0176,Corporate
+C0177,Consumer
+C0178,Consumer
+C0179,Small Business
+C0180,Consumer
+C0181,Online
+C0182,Online
+C0183,Online
+C0184,Consumer
+C0185,Consumer
+C0186,Online
+C0187,Consumer
+C0188,Online
+C0189,Online
+C0190,Online
+C0191,Consumer
+C0192,Consumer
+C0193,Online
+C0194,Consumer
+C0195,Consumer
+C0196,Small Business
+C0197,Online
+C0198,Small Business
+C0199,Small Business
+C0200,Consumer
+C0201,Small Business
+C0202,Online
+C0203,Consumer
+C0204,Small Business
+C0205,Online
+C0206,Corporate
+C0207,Small Business
+C0208,Corporate
+C0209,Consumer
+C0210,Consumer
+C0211,Corporate
+C0212,Corporate
+C0213,Online
+C0214,Online
+C0215,Small Business
+C0216,Small Business
+C0217,Corporate
+C0218,Small Business
+C0219,Corporate
+C0220,Corporate
+C0221,Online
+C0222,Consumer
+C0223,Consumer
+C0224,Consumer
+C0225,Small Business
+C0226,Consumer
+C0227,Consumer
+C0228,Small Business
+C0229,Consumer
+C0230,Small Business
+C0231,Consumer
+C0232,Consumer
+C0233,Corporate
+C0234,Consumer
+C0235,Consumer
+C0236,Small Business
+C0237,Corporate
+C0238,Consumer
+C0239,Small Business
+C0240,Consumer
+C0241,Consumer
+C0242,Small Business
+C0243,Small Business
+C0244,Small Business
+C0245,Corporate
+C0246,Online
+C0247,Small Business
+C0248,Consumer
+C0249,Corporate
+C0250,Consumer
+C0251,Consumer
+C0252,Consumer
+C0253,Consumer
+C0254,Online
+C0255,Corporate
+C0256,Small Business
+C0257,Consumer
+C0258,Consumer
+C0259,Consumer
+C0260,Consumer
+C0261,Small Business
+C0262,Corporate
+C0263,Small Business
+C0264,Consumer
+C0265,Online
+C0266,Corporate
+C0267,Small Business
+C0268,Small Business
+C0269,Consumer
+C0270,Consumer
+C0271,Consumer
+C0272,Corporate
+C0273,Consumer
+C0274,Consumer
+C0275,Consumer
+C0276,Consumer
+C0277,Online
+C0278,Corporate
+C0279,Consumer
+C0280,Consumer
+C0281,Consumer
+C0282,Consumer
+C0283,Consumer
+C0284,Consumer
+C0285,Consumer
+C0286,Small Business
+C0287,Small Business
+C0288,Consumer
+C0289,Consumer
+C0290,Small Business
+C0291,Small Business
+C0292,Online
+C0293,Small Business
+C0294,Consumer
+C0295,Consumer
+C0296,Small Business
+C0297,Consumer
+C0298,Small Business
+C0299,Online
+C0300,Small Business
+C0301,Consumer
+C0302,Small Business
+C0303,Consumer
+C0304,Small Business
+C0305,Online
+C0306,Consumer
+C0307,Online
+C0308,Online
+C0309,Consumer
+C0310,Consumer
+C0311,Consumer
+C0312,Consumer
+C0313,Consumer
+C0314,Small Business
+C0315,Consumer
+C0316,Consumer
+C0317,Corporate
+C0318,Consumer
+C0319,Corporate
+C0320,Consumer
+C0321,Consumer
+C0322,Small Business
+C0323,Small Business
+C0324,Online
+C0325,Corporate
+C0326,Corporate
+C0327,Consumer
+C0328,Consumer
+C0329,Corporate
+C0330,Corporate
+C0331,Online
+C0332,Consumer
+C0333,Consumer
+C0334,Corporate
+C0335,Consumer
+C0336,Online
+C0337,Online
+C0338,Consumer
+C0339,Corporate
+C0340,Corporate
+C0341,Consumer
+C0342,Online
+C0343,Small Business
+C0344,Corporate
+C0345,Consumer
+C0346,Online
+C0347,Consumer
+C0348,Consumer
+C0349,Online
+C0350,Consumer
+C0351,Consumer
+C0352,Online
+C0353,Online
+C0354,Small Business
+C0355,Small Business
+C0356,Consumer
+C0357,Consumer
+C0358,Consumer
+C0359,Small Business
+C0360,Corporate
+C0361,Corporate
+C0362,Corporate
+C0363,Consumer
+C0364,Consumer
+C0365,Consumer
+C0366,Small Business
+C0367,Consumer
+C0368,Online
+C0369,Consumer
+C0370,Consumer
+C0371,Consumer
+C0372,Corporate
+C0373,Small Business
+C0374,Consumer
+C0375,Consumer
+C0376,Corporate
+C0377,Consumer
+C0378,Corporate
+C0379,Corporate
+C0380,Consumer
+C0381,Consumer
+C0382,Online
+C0383,Consumer
+C0384,Consumer
+C0385,Corporate
+C0386,Online
+C0387,Online
+C0388,Corporate
+C0389,Consumer
+C0390,Consumer
+C0391,Corporate
+C0392,Small Business
+C0393,Consumer
+C0394,Online
+C0395,Consumer
+C0396,Consumer
+C0397,Consumer
+C0398,Consumer
+C0399,Consumer
+C0400,Consumer

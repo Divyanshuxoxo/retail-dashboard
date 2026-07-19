@@ -1,0 +1,31 @@
+ProductID,ProductName,Category,UnitCost,UnitPrice
+P1000,Wireless Earbuds,Electronics,59.31,127.85
+P1001,Smart Watch,Electronics,111.14,204.36
+P1002,Bluetooth Speaker,Electronics,27.62,39.79
+P1003,Laptop Stand,Electronics,13.42,27.91
+P1004,Power Bank,Electronics,92.16,178.54
+P1005,USB-C Hub,Electronics,7.98,17.35
+P1006,Men's T-Shirt,Apparel,125.7,187.44
+P1007,Women's Jeans,Apparel,31.36,45.95
+P1008,Running Shoes,Apparel,49.12,87.05
+P1009,Winter Jacket,Apparel,67.63,105.65
+P1010,Baseball Cap,Apparel,93.72,133.6
+P1011,Hoodie,Apparel,47.36,77.19
+P1012,Air Fryer,Home & Kitchen,71.13,142.73
+P1013,Coffee Maker,Home & Kitchen,33.95,59.85
+P1014,Non-Stick Pan Set,Home & Kitchen,90.9,121.97
+P1015,LED Desk Lamp,Home & Kitchen,93.09,135.31
+P1016,Blender,Home & Kitchen,14.43,31.09
+P1017,Storage Bins,Home & Kitchen,145.02,294.03
+P1018,Face Serum,Beauty,49.17,68.24
+P1019,Shampoo Set,Beauty,104.21,176.76
+P1020,Lip Balm Kit,Beauty,22.7,39.62
+P1021,Sunscreen SPF50,Beauty,9.99,21.15
+P1022,Hair Dryer,Beauty,42.52,80.64
+P1023,Makeup Brush Set,Beauty,50.2,88.75
+P1024,Yoga Mat,Sports,84.27,123.58
+P1025,Dumbbell Set,Sports,145.59,290.83
+P1026,Resistance Bands,Sports,141.23,297.33
+P1027,Cricket Bat,Sports,91.7,195.28
+P1028,Football,Sports,17.83,26.33
+P1029,Cycling Helmet,Sports,11.56,18.41
